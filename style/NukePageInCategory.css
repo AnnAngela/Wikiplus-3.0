@@ -1,0 +1,22 @@
+.Wikiplus-InterBox-NukePageInCategory-index {
+    margin-right: 1em;
+}
+
+.Wikiplus-InterBox-NukePageInCategory-control {
+    margin: 0.5em 1em 1em;
+}
+
+.Wikiplus-InterBox-NukePageInCategory-controller.first {
+    margin-right: 1em;
+}
+
+.Wikiplus-InterBox-NukePageInCategory-list {
+    -webkit-column-count: 3;
+    -moz-column-count: 3;
+    column-count: 3;
+}
+
+.Wikiplus-InterBox-NukePageInCategory-action {
+    padding: 1em;
+    text-align: center;
+}
