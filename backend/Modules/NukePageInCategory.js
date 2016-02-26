@@ -66,8 +66,7 @@
 							})
 							)
 						),
-			ol = content.find('ol'),
-			button = $(mediaWiki.util.addPortletLink('p-views', 'javascript:void(0)', '批量删除', 'ca-nuke', '批量删除此分类所有页面', null, '#ca-unwatch,#ca-watch')).find('a');
+			ol = content.find('ol');
 		links.each((index, ele) => {
 			if ($(ele).closest('.CategoryTreeChildren')[0]) return;
 			var _link = link.clone();
@@ -75,7 +74,7 @@
 			_link.find('a').attr('href', ele.href).text(decodeURIComponent(ele.href.slice(23)));
 			ol.append(_link);
 		});
-		button.on('click.nuke', event => {
+		$(mediaWiki.util.addPortletLink('p-views', 'javascript:void(0)', '批量删除', 'ca-nuke', '批量删除此分类所有页面', null, '#ca-unwatch,#ca-watch')).find('a').on('click.nuke', event => {
 			Wikiplus.UI.createBox({
 				title: "批量删除分类页面",
 				width: '1000px',
@@ -163,7 +162,7 @@
 															if (data.move) Wikiplus.notice.create.success(`移动${pagename}到页面存废成功！`);
 															else Wikiplus.notice.create.error(`移动${pagename}到页面存废失败……`);
 															flag.run();
-														})
+														});
 													}).fail(() => {
 														Wikiplus.notice.create.error(`移动${pagename}到页面存废失败：无法获取token……`);
 														flag.run();
@@ -172,18 +171,18 @@
 											} else if (data.error) Wikiplus.notice.create.error(`删除${pagename}失败……`);
 											else Wikiplus.notice.create.success(`删除${pagename}成功！`);
 											flag.run();
-										})
+										});
 									}).fail(() => {
 										Wikiplus.notice.create.error(`删除${pagename}失败：无法获取token……`);
 										flag.run();
 									});
 								});
 							}
-						})
-					})
+						});
+					});
 				}
-			})
-		})
+			});
+		});
 	}
 });
 
