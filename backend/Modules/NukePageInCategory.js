@@ -135,7 +135,8 @@
 								closeButton.addClass('disable').off('click');
 								self.Box.find('li input:checkbox').closet('li').each((index, element) => {
 									var pagename = element.find('a').text(),
-										reason = (regexp.test(pagename) ? 'The file' : 'The file') + reasonTemplate;
+										isFile = regexp.test(pagename),
+										reason = (isFile ? 'The file' : 'The file') + reasonTemplate;
 									Wikiplus.API.getEditToken(pagename).then(token => {
 										$.post(url.api, {
 											action: 'delete',
@@ -145,23 +146,29 @@
 											format: 'json'
 										}, data => {
 											if (data.error && data.error.code == 'bigdelete') {
-												Wikiplus.notice.create.warning(`删除${pagename}失败：版本历史超过5个，尝试移动到页面存废中……`);
-												Wikiplus.API.getEditToken(pagename).then(token => {
-													$.post(url.api, {
-														action: 'move',
-														title: pagename,
-														reason: reason,
-														token: token,
-														format: 'json'
-													}, data=> {
-														if (data.move) Wikiplus.notice.create.success(`移动${pagename}到页面存废成功！`);
-														else Wikiplus.notice.create.error(`移动${pagename}到页面存废失败……`);
-														flag.run();
-													})
-												}).fail(() => {
-													Wikiplus.notice.create.error(`移动${pagename}到页面存废失败：无法获取token……`);
+												if (isFile) {
+													Wikiplus.notice.create.warning(`删除${pagename}失败：版本历史超过5个……`);
 													flag.run();
-												});
+												}
+												else {
+													Wikiplus.notice.create.warning(`删除${pagename}失败：版本历史超过5个，尝试移动到页面存废中……`);
+													Wikiplus.API.getEditToken(pagename).then(token => {
+														$.post(url.api, {
+															action: 'move',
+															title: pagename,
+															reason: reason,
+															token: token,
+															format: 'json'
+														}, data=> {
+															if (data.move) Wikiplus.notice.create.success(`移动${pagename}到页面存废成功！`);
+															else Wikiplus.notice.create.error(`移动${pagename}到页面存废失败……`);
+															flag.run();
+														})
+													}).fail(() => {
+														Wikiplus.notice.create.error(`移动${pagename}到页面存废失败：无法获取token……`);
+														flag.run();
+													});
+												}
 											} else if (data.error) Wikiplus.notice.create.error(`删除${pagename}失败……`);
 											else Wikiplus.notice.create.success(`删除${pagename}成功！`);
 											flag.run();
