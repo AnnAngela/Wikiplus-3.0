@@ -6,7 +6,7 @@
         "dependencies": []
     },
     "init": function (self, dpds) {
-		if (mw.config.get('wgAction') !== 'view') return;
+		if (mediaWiki.config.get('wgAction') !== 'view') return;
 		jQuery.fn.extend({
 			'check': function (flag) {
 				if (flag === undefined) return this.is(':checked');
