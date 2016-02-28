@@ -17,14 +17,25 @@
 				},
                 success: data => {
                     if (data.query && data.query.tokens && data.query.tokens.csrftoken && data.query.tokens.csrftoken !== '+\\') res(data.query.tokens.csrftoken);
-                    else rej('Fail to get the EditToken');
+                    else rej();
                 },
 				error: e => {
-					rej('Fail to get the EditToken');
+					rej();
 				}
             })
         })
     },
+	'url': Wikiplus.API.getAPIURL(),
+	'counter': function (max) {
+		var self = this;
+		self.count = 0
+		self.max = max;
+		self.plus = function () {
+			if (max <= ++self.count) Wikiplus.notice.create.success('批量删除工作执行完成，刷新页面中……', () => {
+				window.location.reload();
+			});
+		}
+	},
     "init": function (self, dpds) {
         if (mediaWiki.config.get('wgAction') !== 'view') return;
         jQuery.fn.extend({
@@ -35,10 +46,7 @@
                 return this;
             }
         });
-        var url = {
-			api: Wikiplus.API.getAPIURL()
-		},
-            links = $('#mw-content-text > div > div[lang="zh-CN"][dir="ltr"]').clone(),
+        var links = $('#mw-content-text > div > div[lang="zh-CN"][dir="ltr"]').clone(),
             link = $('<li/>').append(
                 $('<input/>', {
                     attr: {
@@ -141,23 +149,15 @@
                                 Wikiplus.notice.create.warning('正在批量删除中，请勿关闭页面！');
                                 var reasonTemplate = ' in 【Category:即将删除的页面】 has been deleted by MoeClear desighed by Grzhan. This active was watched by AnnAngela.',
                                     regexp = /^File:/,
-                                    flag = {
-                                        count: 0,
-                                        max: self.Box.find('li input:checkbox').length
-                                    };
-                                flag.run = function () {
-                                    if (++flag.count >= flag.max) Wikiplus.notice.create.success('批量删除工作执行完成，刷新页面中……', () => {
-                                        window.location.reload();
-                                    });
-                                };
-                                closeButton.addClass('disable').off('click');
+                                    counter=self.counter(self.Box.find('li input:checkbox').length);
+                                                                closeButton.addClass('disable').off('click');
                                 self.Box.find('li input:checkbox').closet('li').each((index, element) => {
                                     var pagename = element.find('a').text(),
                                         isFile = regexp.test(pagename),
                                         reason = (isFile ? 'The file' : 'The file') + reasonTemplate;
                                     self.getToken().then(token => {
                                         $.ajax({
-											url: url.api,
+											url: self.url,
 											type: 'POST',
 											data: {
 												action: 'delete',
@@ -169,23 +169,23 @@
 												if (data.error && data.error.code == 'bigdelete') {
 													if (isFile) {
 														Wikiplus.notice.create.warning(`删除${pagename}失败：版本历史超过5个……`);
-														flag.run();
+														counter.plus();
 													} else throw new Error('');
 												} else if (data.error) Wikiplus.notice.create.error(`删除${pagename}失败……`);
 												else Wikiplus.notice.create.success(`删除${pagename}成功！`);
-												flag.run();
+												counter.plus();
 											}, error: e=> {
 												Wikiplus.notice.create.error(`删除${pagename}失败……`);
 											}
 										});
                                     }).fail(e => {
                                         Wikiplus.notice.create.error(`删除${pagename}失败：无法获取token……`);
-                                        flag.run();
+                                        counter.plus();
 									}).catch(e=> {
 										Wikiplus.notice.create.warning(`删除${pagename}失败：版本历史超过5个，尝试移动到页面存废中……`);
 										self.getToken().then(token => {
 											$.ajax({
-												url: url.api,
+												url: self.url,
 												type: 'POST',
 												data: {
 													action: 'move',
@@ -197,12 +197,12 @@
 												success: data => {
 													if (data.move) Wikiplus.notice.create.success(`移动${pagename}到页面存废成功！`);
 													else Wikiplus.notice.create.error(`移动${pagename}到页面存废失败……`);
-													flag.run();
+													counter.plus();
 												}
 											});
 										}).fail(() => {
 											Wikiplus.notice.create.error(`移动${pagename}到页面存废失败：无法获取token……`);
-											flag.run();
+											counter.plus();
 										});
 									});
                                 });
