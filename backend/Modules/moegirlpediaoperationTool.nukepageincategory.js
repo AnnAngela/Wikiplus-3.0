@@ -1,9 +1,9 @@
 /* global mediaWiki, Wikiplus */
 ({
     "manifest": {
-        "name": "nukepageincategory",
+        "name": "moegirlpediaoperationTool.nukepageincategory",
         "version": "0.0.1",
-        "dependencies": ['MoegirlPediaOperationTool.core']
+        "dependencies": ['moegirlpediaoperationTool.core']
     },
 	'counter': function (max) {
 		var self = this;
