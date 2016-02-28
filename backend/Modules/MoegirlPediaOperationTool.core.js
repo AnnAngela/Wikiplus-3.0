@@ -19,7 +19,7 @@
             }));
     },
     'url': Wikiplus.API.getAPIURL(),
-    'createBox': function (title = 'wikiplus', content = '', callback = () => { }) {
+    'createBox': function (title = 'wikiplus', content = '', callback = _ => { }) {
         var width = 1000,
             $content = $('<div>').addClass('Wikiplus-InterBox-Content')
 				.append(content),
@@ -45,13 +45,13 @@
         $('body').append(diglogBox);
         diglogBox.find('.Wikiplus-InterBox').width(width + 'px');
         diglogBox.find('.Wikiplus-InterBox-Close').on('click', e =>
-            $(this).parent().fadeOut('fast', e => {
+            $(this).parent().fadeOut('fast', _ => {
                 window.onclose = window.onbeforeunload = undefined; //取消页面关闭确认
                 $(this).remove();
             }));
         $('.Wikiplus-InterBox-Header').bindDragging();
         $('.Wikiplus-InterBox').fadeIn(500);
-        callback($content, e => diglogBox.find('.Wikiplus-InterBox-Close').click());
+        callback($content, _ => diglogBox.find('.Wikiplus-InterBox-Close').click());
     },
     '_createDialog': function (info, title, mode, _createBox) {
         if ($('#Wikiplus-InterBox-Content')[0]) return;
@@ -66,9 +66,9 @@
                     .data('value', btnOpt.res);
                 content.append(dialogBtn);
             }
-            _createBox(title, info, (c, close) => {
+            _createBox(title, info, (_, close) => {
                 for (let btnOpt of mode)
-                    $(`#Wikiplus-InterBox-Btn${btnOpt.id}`).on('click', e => {
+                    $(`#Wikiplus-InterBox-Btn${btnOpt.id}`).on('click', _ => {
                         let resValue = $(`#Wikiplus-InterBox-Btn${btnOpt.id}`).data('value');
                         close();
                         r(resValue);
@@ -99,6 +99,14 @@
 				}
             })));
     },
+	'counter': function (max = 0, callback = _ => { }) {
+		var self = this;
+		self.count = 0
+		self.max = max;
+		self.plus = function () {
+			if (max <= ++self.count) callback();
+		}
+	},
     '_move': function (name, reason, core) {
         return core.getToken().then(token =>
             new Promise((s, j) => $.ajax({

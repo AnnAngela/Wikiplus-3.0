@@ -5,16 +5,6 @@
         "version": "0.0.1",
         "dependencies": ['moegirlpediaoperationTool.core']
     },
-	'counter': function (max) {
-		var self = this;
-		self.count = 0
-		self.max = max;
-		self.plus = function () {
-			if (max <= ++self.count) Wikiplus.notice.create.success('批量删除工作执行完成，刷新页面中……', () => {
-				window.location.reload();
-			});
-		}
-	},
 	'runable': mediaWiki.config.get('wgAction') == 'view' ? mediaWiki.config.get('wgUserGroups').indexOf('sysop') !== -1 ? true : false : false,
     "init": function (self, dpds) {
         if (!self.runable) return;
@@ -67,7 +57,8 @@
 							})
 							)
 						),
-            ol = content.find('ol');
+            ol = content.find('ol'),
+			Counter = core.counter;//jsinit傻逼，强行要首字母大写
         links.each((index, ele) => {
             if ($(ele).closest('.CategoryTreeChildren')[0]) return;
             var _link = link.clone();
@@ -75,7 +66,7 @@
             _link.find('a').attr('href', ele.href).text(decodeURIComponent(ele.href.slice(23)));
             ol.append(_link);
         });
-        $(mediaWiki.util.addPortletLink('p-views', 'javascript:void(0)', '批量删除', 'ca-nuke', '批量删除此分类所有页面', null, '#ca-unwatch,#ca-watch')).find('a').on('click.nuke', event =>
+        $(mediaWiki.util.addPortletLink('p-views', 'javascript:void(0)', '批量删除', 'ca-nuke', '批量删除此分类所有页面', null, '#ca-unwatch,#ca-watch')).find('a').on('click.nuke', _ =>
             core.createBox("批量删除分类页面", content, function () {
 				var interBox = $('.Wikiplus-InterBox'),
 					content = interBox.find('.Wikiplus-InterBox-Content'),
@@ -83,35 +74,37 @@
 					selectBox = content.find('.Wikiplus-InterBox-NukePageInCategory-controller.first input:checkbox'),
 					unselectBox = content.find('.Wikiplus-InterBox-NukePageInCategory-controller.second input:checkbox'),
 					actionButton = content.find('.Wikiplus-InterBox-NukePageInCategory-action button');
-				content.find('li input:checkbox').on('click.nuke', event => {
+				content.find('li input:checkbox').on('click.nuke', _ => {
 					if (content.find('li input:checkbox').length === content.find('li input:checkbox:checked').length) selectBox.click();
 					else if (!content.find('li input:checkbox:checked')[0]) unselectBox.click();
 					else selectBox.add(unselectBox).check(false), actionButton.removeClass('disable');
 				});
-				selectBox.on('click.nuke', event => {
+				selectBox.on('click.nuke', _ => {
 					unselectBox.check(false);
 					content.find('li input:checkbox').add(selectBox).check(true);
 					actionButton.removeClass('disable');
 				});
-				unselectBox.on('click.nuke', event => {
+				unselectBox.on('click.nuke', _ => {
 					selectBox.check(false);
 					content.find('li input:checkbox').add(unselectBox).check(true);
 					actionButton.addClass('disable');
 				});
-				actionButton.on('click.nuke', event => {
+				actionButton.on('click.nuke', _ => {
 					if (actionButton.hasClass('disable')) return;
 					self.Box = $('.Wikiplus-InterBox').clone;
 					core.createDialog(`你真的要动手删除这${content.find('li input:checkbox:checked').length}个页面吗？`, '管理员迟迟不动手，背后怕是有肮脏的……', [
 						{ id: 'Yes', text: '动手！', res: true },
 						{ id: 'No', text: '抱歉，交易已经完成了', res: false }
 					]).then(value => {
-						if (!value) return window.setTimeout(() => {
+						if (!value) return window.setTimeout(_ => {
 							self.Box.appendTo('body').fadeIn('fast');
 						}, 400);
 						Wikiplus.notice.create.warning('正在批量删除中，请勿关闭页面！');
 						var reasonTemplate = ' in 【Category:即将删除的页面】 has been deleted by MoeClear desighed by Grzhan. This active was watched by AnnAngela.',
 							regexp = /^File:/,
-							counter = self.counter(self.Box.find('li input:checkbox').length);
+							counter = new Counter(self.Box.find('li input:checkbox').length, _=> Wikiplus.notice.create.success('批量删除工作执行完成，刷新页面中……', _ => {
+								window.location.reload();
+							}));
 						closeButton.addClass('disable').off('click');
 						self.Box.find('li input:checkbox').closet('li').each((index, element) => {
 							var pagename = element.find('a').text(),
@@ -136,7 +129,7 @@
 										else Wikiplus.notice.create.error(`移动${pagename}到页面存废失败……`);
 									});
 								else Wikiplus.notice.create.error(`删除${pagename}失败（${e.toString() }）……`);
-							}).finally(e=> counter.plus());
+							}).finally(_=> counter.plus());
 						});
 					});
 				});
