@@ -12,7 +12,10 @@
                 success: data =>
                     data.query && data.query.tokens && data.query.tokens.csrftoken && data.query.tokens.csrftoken !== '+\\' ?
 						res(data.query.tokens.csrftoken) : rej(),
-                error: e => rej('token')
+                error: (eO, eM, eC) => {
+					eC ? eC += '.' + eM : eC = eM
+					rej(['token', eC]);
+				}
             }));
     },
     'url': Wikiplus.API.getAPIURL(),
@@ -89,7 +92,11 @@
                     if (data.error && data.error.code == 'bigdelete') s('bigdelete');
                     else if (data.error) j('delete');
                     else s(true);
-                }
+                },
+				error: (eO, eM, eC) => {
+					eC ? eC += '.' + eM : eC = eM
+					j(eC);
+				}
             })));
     },
     '_move': function (name, reason, core) {
@@ -107,7 +114,11 @@
                 success: data => {
                     if (data.move) s();
                     else j('move');
-                }
+                },
+				error: (eO, eM, eC) => {
+					eC ? eC += '.' + eM : eC = eM
+					j(eC);
+				}
             }))
 			)
     },

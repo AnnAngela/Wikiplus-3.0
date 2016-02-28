@@ -126,14 +126,14 @@
 									}
 								} else Wikiplus.notice.create.success(`删除${pagename}成功！`)
 							}).fail(e=> {
-								if (e == 'token') Wikiplus.notice.create.error(`删除${pagename}失败：无法获取token……`);
-								else Wikiplus.notice.create.error(`删除${pagename}失败……`);
+								if (Array.isArray(e)) Wikiplus.notice.create.error(`删除${pagename}失败：无法获取token（${e[1]}）……`);
+								else Wikiplus.notice.create.error(`删除${pagename}失败（${e }）……`);
 							}).catch(e=> {
-								if (e == 'move') core.move(pagename, reason)
+								if (e == 'move') return core.move(pagename, reason)
 									.then(e=> Wikiplus.notice.create.success(`移动${pagename}到页面存废成功！`))
 									.fail(e=> {
-										if (e == 'move') Wikiplus.notice.create.error(`移动${pagename}到页面存废失败……`);
-										else Wikiplus.notice.create.error(`移动${pagename}到页面存废失败：无法获取token……`);
+										if (Array.isArray(e)) Wikiplus.notice.create.error(`移动${pagename}到页面存废失败：无法获取token（${e[1]}）……`);
+										else Wikiplus.notice.create.error(`移动${pagename}到页面存废失败……`);
 									});
 								else Wikiplus.notice.create.error(`删除${pagename}失败（${e.toString() }）……`);
 							}).finally(e=> counter.plus());
