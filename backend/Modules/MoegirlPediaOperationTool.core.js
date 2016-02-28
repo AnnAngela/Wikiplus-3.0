@@ -110,7 +110,7 @@
                 }
             }))
         )
-    }
+    },
     'init': function(self) {
         self.createDialog = function(info = '', title = 'Wikiplus', mode = [{ id: "Yes", text: "Yes", res: true }, { id: "No", text: "No", res: false }]) {
             return self._createDialog(info, title, mode, self.createBox);

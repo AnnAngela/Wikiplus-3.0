@@ -105,13 +105,9 @@
 						{ id: 'Yes', text: '动手！', res: true },
 						{ id: 'No', text: '抱歉，交易已经完成了', res: false }
 					]).then(value => {
-						if (!value) {
-							Wikiplus.UI.closeBox();
-							window.setTimeout(() => {
-								self.Box.appendTo('body').fadeIn('fast');
-							}, 400);
-							return;
-						}
+						if (!value) return window.setTimeout(() => {
+							self.Box.appendTo('body').fadeIn('fast');
+						}, 400);
 						Wikiplus.notice.create.warning('正在批量删除中，请勿关闭页面！');
 						var reasonTemplate = ' in 【Category:即将删除的页面】 has been deleted by MoeClear desighed by Grzhan. This active was watched by AnnAngela.',
 							regexp = /^File:/,
