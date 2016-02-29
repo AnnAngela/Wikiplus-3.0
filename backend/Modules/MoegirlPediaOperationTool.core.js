@@ -95,7 +95,7 @@
                 },
 				error: (eO, eM, eC) => {
 					eC ? eC += '.' + eM : eC = eM
-					j(eC);
+					j(['delete',eC]);
 				}
             })));
     },
@@ -125,7 +125,7 @@
                 },
 				error: (eO, eM, eC) => {
 					eC ? eC += '.' + eM : eC = eM
-					j(eC);
+					j(['move',eC]);
 				}
             }))
 			)
