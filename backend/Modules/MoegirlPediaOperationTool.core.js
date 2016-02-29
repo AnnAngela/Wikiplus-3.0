@@ -76,7 +76,7 @@
             })
         });
     },
-    '_delete': function (name, reason, core) {
+    '_delete': function (name, watchlist, reason, core) {
         return core.getToken().then(token =>
             new Promise((s, j) => $.ajax({
                 url: core.url,
@@ -86,7 +86,8 @@
                     title: name,
                     reason: reason,
                     token: token,
-                    format: 'json'
+                    format: 'json',
+					watchlist: core._watchlist(watchlist)
                 },
                 success: data => {
                     if (data.error && data.error.code == 'bigdelete') s('bigdelete');
@@ -110,17 +111,32 @@
 		};
 		return new Counter(max, callback);
 	},
-    '_move': function (name, reason, core) {
+	'_watchlist': function (watchlist) {
+		switch (watchlist) {
+			case -1: watchlist = 'unwatch';
+				break;
+			case 1: watchlist = 'watch';
+				break;
+			case 0:
+			default: watchlist = 'preferences';
+		}
+		return watchlist;
+	},
+    '_move': function (from, to, noredirect, watchlist, reason, core) {
         return core.getToken().then(token =>
             new Promise((s, j) => $.ajax({
                 url: core.url,
                 type: "POST",
                 data: {
                     action: 'move',
-                    title: name,
+                    from: from,
+					to: to,
                     reason: reason,
                     token: token,
-                    format: 'json'
+                    format: 'json',
+					noredirect: noredirect,
+					watchlist: core._watchlist(watchlist),
+					ignorewarnings: true
                 },
                 success: data => {
                     if (data.move) s();
@@ -133,15 +149,21 @@
             }))
 			)
     },
+	'_default': function (v, a, d) {
+		return a.indexOf(v) != -1 ? v : d;
+	},
     'init': function (self) {
         self.createDialog = function (info = '', title = 'Wikiplus', mode = [{ id: "Yes", text: "Yes", res: true }, { id: "No", text: "No", res: false }]) {
             return self._createDialog(info, title, mode, self.createBox);
         };
-        self.delete = function (name = '', reason = '') {
+        self.delete = function (name = '', watchlist = 0, reason = '') {
+			watchlist = self._default(watchlist, [-1, 0, 1], 0);
             return self._delete(name, reason, self);
         };
-        self.move = function (name = '', reason = '') {
-			return self._move(name, reason, self);
+        self.move = function (from = '', to = '', noredirect = true, watchlist = 0, reason = '') {
+			noredirect = self._default(noredirect, [true, false], true);
+			watchlist = self._default(watchlist, [-1, 0, 1], 0);
+			return self._move(from, to, noredirect, watchlist, reason, self);
         };
     }
 })

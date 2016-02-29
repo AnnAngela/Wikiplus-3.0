@@ -52,10 +52,16 @@
 						$('<div/>', {
 							attr: { 'class': 'Wikiplus-InterBox-NukePageInCategory-action' }
 						}).append(
-							$('<button/>', {
-								text: '删除选中页面'
+							$('<input/>', {
+								attr: { 'type': 'checkbox' }
 							})
-							)
+							).append('监视所有页面')
+							.append(
+								$('<button/>', {
+									text: '删除选中页面',
+									css: { 'margin-left': '3em' }
+								})
+								)
 						),
             ol = content.find('ol');
         links.each((index, ele) => {
@@ -90,44 +96,72 @@
 				});
 				actionButton.on('click.nuke', _ => {
 					if (actionButton.hasClass('disable')) return;
-					self.Box = $('.Wikiplus-InterBox').clone;
 					core.createDialog(`你真的要动手删除这${content.find('li input:checkbox:checked').length}个页面吗？`, '管理员迟迟不动手，背后怕是有肮脏的……', [
 						{ id: 'Yes', text: '动手！', res: true },
 						{ id: 'No', text: '抱歉，交易已经完成了', res: false }
 					]).then(value => {
 						if (!value) return window.setTimeout(_ => {
-							self.Box.appendTo('body').fadeIn('fast');
+							content.appendTo('body').fadeIn('fast');
 						}, 400);
 						Wikiplus.notice.create.warning('正在批量删除中，请勿关闭页面！');
 						var reasonTemplate = ' in 【Category:即将删除的页面】 has been deleted by MoeClear desighed by Grzhan. This active was watched by AnnAngela.',
 							regexp = /^File:/,
-							counter = core.counter(self.Box.find('li input:checkbox').length, _=> Wikiplus.notice.create.success('批量删除工作执行完成，刷新页面中……', _ => {
+							counter = core.counter(content.find('li input:checkbox').length, _=> Wikiplus.notice.create.success('批量删除工作执行完成，刷新页面中……', _ => {
 								window.location.reload();
-							}));
+							})),
+							watchlist = content.find('.Wikiplus-InterBox-NukePageInCategory-action input:checkbox').check() ? 1 : 0;
 						closeButton.addClass('disable').off('click');
-						self.Box.find('li input:checkbox').closet('li').each((index, element) => {
-							var pagename = element.find('a').text(),
+						content.find('li input:checkbox').closet('li').each((index, element) => {
+							var pagename = $(element).find('a').text(),
 								isFile = regexp.test(pagename),
 								reason = (isFile ? 'The file' : 'The file') + reasonTemplate;
-							core.delete(pagename, reason).then(v=> {
+							jQuery.fn.extend({
+								'red': function () {
+									return this.css('color', 'red');
+								},
+								'yellow': function () {
+									return this.css('color', 'yelow');
+								},
+								'green': function () {
+									return this.css('color', 'green');
+								}
+							});
+							$(element).find('input:checkbox').attr('disable', 'disable')
+								.end().find('a').replaceAll($(element).find('a').text());
+							core.delete(pagename, watchlist, reason).then(v=> {
 								if (v == 'bigdelete') {
-									if (isFile) Wikiplus.notice.create.warning(`删除${pagename}失败：版本历史超过5个……`);
+									if (isFile) {
+										Wikiplus.notice.create.warning(`删除${pagename}失败：版本历史超过5个……`);
+										$(element).red();
+									}
 									else {
 										Wikiplus.notice.create.warning(`删除${pagename}失败：版本历史超过5个，尝试移动到页面存废中……`);
+										$(element).yellow();
 										throw 'move';
 									}
-								} else Wikiplus.notice.create.success(`删除${pagename}成功！`)
+								} else {
+									Wikiplus.notice.create.success(`删除${pagename}成功！`);
+									$(element).green();
+								}
 							}).fail(e=> {
 								if (e[0] == 'token') Wikiplus.notice.create.error(`删除${pagename}失败：无法获取token（${e[1]}）……`);
 								else Wikiplus.notice.create.error(`删除${pagename}失败（${e[1]}）……`);
+								$(element).red()
 							}).catch(e=> {
-								if (e == 'move') return core.move(pagename, reason)
-									.then(e=> Wikiplus.notice.create.success(`移动${pagename}到页面存废成功！`))
+								if (e == 'move') return core.move(pagename, '萌娘百科:页面存废/' + pagename, true, watchlist, reason)
+									.then(e=> {
+										Wikiplus.notice.create.success(`移动${pagename}到页面存废成功！`);
+										$(element).green()
+									})
 									.fail(e=> {
 										if (e[0] == 'token') Wikiplus.notice.create.error(`移动${pagename}到页面存废失败：无法获取token（${e[1]}）……`);
 										else Wikiplus.notice.create.error(`移动${pagename}到页面存废失败（${e[0]}）……`);
+										$(element).red()
 									});
-								else Wikiplus.notice.create.error(`删除${pagename}失败（${e.toString() }）……`);
+								else {
+									Wikiplus.notice.create.error(`删除${pagename}失败（${e.toString() }）……`);
+									$(element).red();
+								}
 							}).finally(_=> counter.plus());
 						});
 					});
