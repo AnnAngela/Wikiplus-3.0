@@ -95,17 +95,20 @@
                 },
 				error: (eO, eM, eC) => {
 					eC ? eC += '.' + eM : eC = eM
-					j(['delete',eC]);
+					j(['delete', eC]);
 				}
             })));
     },
 	'counter': function (max = 0, callback = _ => { }) {
-		var self = this;
-		self.count = 0
-		self.max = max;
-		self.plus = function () {
-			if (max <= ++self.count) callback();
-		}
+		function Counter(max, callback) {
+			var self = this;
+			self.count = 0
+			self.max = max;
+			self.plus = function () {
+				if (max <= ++self.count) callback();
+			}
+		};
+		return new Counter(max, callback);
 	},
     '_move': function (name, reason, core) {
         return core.getToken().then(token =>
@@ -125,7 +128,7 @@
                 },
 				error: (eO, eM, eC) => {
 					eC ? eC += '.' + eM : eC = eM
-					j(['move',eC]);
+					j(['move', eC]);
 				}
             }))
 			)

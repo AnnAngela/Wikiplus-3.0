@@ -57,8 +57,7 @@
 							})
 							)
 						),
-            ol = content.find('ol'),
-			Counter = core.counter;//jsinit傻逼，强行要首字母大写
+            ol = content.find('ol');
         links.each((index, ele) => {
             if ($(ele).closest('.CategoryTreeChildren')[0]) return;
             var _link = link.clone();
@@ -102,7 +101,7 @@
 						Wikiplus.notice.create.warning('正在批量删除中，请勿关闭页面！');
 						var reasonTemplate = ' in 【Category:即将删除的页面】 has been deleted by MoeClear desighed by Grzhan. This active was watched by AnnAngela.',
 							regexp = /^File:/,
-							counter = new Counter(self.Box.find('li input:checkbox').length, _=> Wikiplus.notice.create.success('批量删除工作执行完成，刷新页面中……', _ => {
+							counter = core.counter(self.Box.find('li input:checkbox').length, _=> Wikiplus.notice.create.success('批量删除工作执行完成，刷新页面中……', _ => {
 								window.location.reload();
 							}));
 						closeButton.addClass('disable').off('click');
