@@ -127,7 +127,8 @@
 								}
 							});
 							$(element).find('input:checkbox').attr('disable', 'disable')
-								.end().find('a').replaceAll($(element).find('a').text());
+								.end().find('a').replaceAll($(element).find('a').text())
+								.end().css('transition', '0.37s all linear');
 							core.delete(pagename, watchlist, reason).then(v=> {
 								if (v == 'bigdelete') {
 									if (isFile) {
@@ -146,17 +147,17 @@
 							}).fail(e=> {
 								if (e[0] == 'token') Wikiplus.notice.create.error(`删除${pagename}失败：无法获取token（${e[1]}）……`);
 								else Wikiplus.notice.create.error(`删除${pagename}失败（${e[1]}）……`);
-								$(element).red()
+								$(element).red();
 							}).catch(e=> {
 								if (e == 'move') return core.move(pagename, '萌娘百科:页面存废/' + pagename, true, watchlist, reason)
 									.then(e=> {
 										Wikiplus.notice.create.success(`移动${pagename}到页面存废成功！`);
-										$(element).green()
+										$(element).green();
 									})
 									.fail(e=> {
 										if (e[0] == 'token') Wikiplus.notice.create.error(`移动${pagename}到页面存废失败：无法获取token（${e[1]}）……`);
 										else Wikiplus.notice.create.error(`移动${pagename}到页面存废失败（${e[0]}）……`);
-										$(element).red()
+										$(element).red();
 									});
 								else {
 									Wikiplus.notice.create.error(`删除${pagename}失败（${e.toString() }）……`);

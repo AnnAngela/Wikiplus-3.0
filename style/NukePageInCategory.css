@@ -21,7 +21,7 @@
     text-align: center;
 }
 
-.Wikiplus-InterBox-Close.disable {
+.Wikiplus-InterBox .disable {
     opacity: 0.73;
     cursor: not-allowed;
 }
