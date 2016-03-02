@@ -32,5 +32,6 @@
 				});
 			}
         });
+		console.debug('Wikiplus-3.0 module moegirlpediaoperationtool.extend: init');
 	}
 })

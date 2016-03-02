@@ -1,7 +1,8 @@
+/* global Wikiplus */
 ({
     "manifest": {
         "name": "moegirlpediaoperationtool.core",
-        "version": "0.0.1",
+        "version": "0.0.2",
         "dependencies": ['moegirlpediaoperationtool.extend']
     },
     'getToken': function () {
@@ -19,7 +20,7 @@
             }));
     },
     'url': Wikiplus.API.getAPIURL(),
-    'createBox': function (title = 'wikiplus', content = '', callback = _ => { }) {
+    'createBox': function (title = 'Wikiplus 3.0 MoeGirlPediaOperationTool', content = '', callback = _ => { }) {
         var width = 1000,
             $content = $('<div>').addClass('Wikiplus-InterBox-Content')
 				.append(content),
@@ -53,7 +54,7 @@
         $('.Wikiplus-InterBox').fadeIn(500);
         callback($content, _ => diglogBox.find('.Wikiplus-InterBox-Close').click());
     },
-    '_createDialog': function (info, title, mode, _createBox) {
+    'createDialog': function (info = 'Wikiplus 3.0 MoeGirlPediaOperationTool Dialog', title = 'Wikiplus 3.0 MoeGirlPediaOperationTool', mode = [{ id: "Yes", text: 'Yes', res: true }, { id: "No", text: "No", res: false }]) {
         if ($('#Wikiplus-InterBox-Content')[0]) return;
         return new Promise(r => {
             var notice = $('<div>').text(info).attr('id', 'Wikiplus-InterBox-Content'),
@@ -66,7 +67,7 @@
                     .data('value', btnOpt.res);
                 content.append(dialogBtn);
             }
-            _createBox(title, info, (_, close) => {
+            this.createBox(title, info, (_, close) => {
                 for (let btnOpt of mode)
                     $(`#Wikiplus-InterBox-Btn${btnOpt.id}`).on('click', _ => {
                         let resValue = $(`#Wikiplus-InterBox-Btn${btnOpt.id}`).data('value');
@@ -76,10 +77,10 @@
             })
         });
     },
-    '_delete': function (name, watchlist, reason, core) {
-        return core.getToken().then(token =>
+    'delete': function (name = '', watchlist = 1, reason = '') {
+        return this.getToken().then(token =>
             new Promise((s, j) => $.ajax({
-                url: core.url,
+                url: this.url,
                 type: 'POST',
                 data: {
                     action: 'delete',
@@ -87,11 +88,11 @@
                     reason: reason,
                     token: token,
                     format: 'json',
-					watchlist: core._watchlist(watchlist)
+					watchlist: this._watchlist(watchlist)
                 },
                 success: data => {
                     if (data.error && data.error.code == 'bigdelete') s('bigdelete');
-                    else if (data.error) j('delete');
+                    else if (data.error) j(['delete',data.error['*']]);
                     else s(true);
                 },
 				error: (eO, eM, eC) => {
@@ -111,21 +112,22 @@
 		};
 		return new Counter(max, callback);
 	},
-	'_watchlist': function (watchlist) {
+	'_watchlist': function (watchlist = 0) {
+		var returnValue;
 		switch (watchlist) {
-			case -1: watchlist = 'unwatch';
+			case -1: returnValue = 'unwatch';
 				break;
-			case 1: watchlist = 'watch';
+			case 1: returnValue = 'watch';
 				break;
 			case 0:
-			default: watchlist = 'preferences';
+			default: returnValue = 'preferences';
 		}
-		return watchlist;
+		return returnValue;
 	},
-    '_move': function (from, to, noredirect, watchlist, reason, core) {
-        return core.getToken().then(token =>
+    'move': function (from = '', to = '', noredirect = true, watchlist = 1, reason = '') {
+        return this.getToken().then(token =>
             new Promise((s, j) => $.ajax({
-                url: core.url,
+                url: this.url,
                 type: "POST",
                 data: {
                     action: 'move',
@@ -135,7 +137,7 @@
                     token: token,
                     format: 'json',
 					noredirect: noredirect,
-					watchlist: core._watchlist(watchlist),
+					watchlist: this._watchlist(watchlist),
 					ignorewarnings: true
                 },
                 success: data => {
@@ -149,21 +151,10 @@
             }))
 			)
     },
-	'_default': function (v, a, d) {
+	'_default': function (v = '', a = [''], d = '') {
 		return a.indexOf(v) != -1 ? v : d;
 	},
     'init': function (self) {
-        self.createDialog = function (info = '', title = 'Wikiplus', mode = [{ id: "Yes", text: "Yes", res: true }, { id: "No", text: "No", res: false }]) {
-            return self._createDialog(info, title, mode, self.createBox);
-        };
-        self.delete = function (name = '', watchlist = 0, reason = '') {
-			watchlist = self._default(watchlist, [-1, 0, 1], 0);
-            return self._delete(name, reason, self);
-        };
-        self.move = function (from = '', to = '', noredirect = true, watchlist = 0, reason = '') {
-			noredirect = self._default(noredirect, [true, false], true);
-			watchlist = self._default(watchlist, [-1, 0, 1], 0);
-			return self._move(from, to, noredirect, watchlist, reason, self);
-        };
+		console.debug('Wikiplus-3.0 module moegirlpediaoperationtool.core: init');
     }
 })
