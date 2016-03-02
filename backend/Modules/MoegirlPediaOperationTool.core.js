@@ -19,6 +19,9 @@
 				}
             }));
     },
+	'apiErrorMessage': function (eM = '', eC = '') {
+		return eC ? eC + '.' + eM : eM;
+	},
     'url': Wikiplus.API.getAPIURL(),
     'createBox': function (title = 'Wikiplus 3.0 MoeGirlPediaOperationTool', content = '', callback = _ => { }) {
         var width = 1000,
@@ -92,12 +95,11 @@
                 },
                 success: data => {
                     if (data.error && data.error.code == 'bigdelete') s('bigdelete');
-                    else if (data.error) j(['delete',data.error['*']]);
+                    else if (data.error) j(['delete', data.error['*']]);
                     else s(true);
                 },
 				error: (eO, eM, eC) => {
-					eC ? eC += '.' + eM : eC = eM
-					j(['delete', eC]);
+					j(['delete', this.apiErrorMessage(eM, eC)]);
 				}
             })));
     },
@@ -145,8 +147,7 @@
                     else j('move');
                 },
 				error: (eO, eM, eC) => {
-					eC ? eC += '.' + eM : eC = eM
-					j(['move', eC]);
+					j(['move', this.apiErrorMessage(eM, eC)]);
 				}
             }))
 			)
