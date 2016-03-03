@@ -5,7 +5,7 @@
         "version": "0.0.1",
         "dependencies": ['moegirlpediaoperationTool.core']
     },
-	'runable': mediaWiki.config.get('wgAction') == 'view' ? mediaWiki.config.get('wgUserGroups').indexOf('sysop') !== -1 ? true : false : false,//检测页面是否在view模式，且用户为管理员
+	'runable': mediaWiki.config.get('wgAction') == 'view' ? mediaWiki.config.get('wgUserGroups').indexOf('sysop') !== -1 ? mediaWiki.config.get('wgNamespaceNumber') == 14 ? true : false : false : false,//检测页面是否在view模式，且用户为管理员
     "init": function (_, dpds) {
 		var self = this;
         if (!self.runable) return;//如果不是就退出
