@@ -12,15 +12,16 @@
 	'_default': function (v = '', a = [''], d = '') {
 		return a.indexOf(v) != -1 ? v : d;
 	},
+	'_counter': function (max, callback) {
+		var self = this;
+		self.count = 0
+		self.max = max;
+		self.plus = function () {
+			if (max <= ++self.count) callback();
+		}
+	},
 	'counter': function (max = 0, callback = _ => { }) {
-		function Counter(max, callback) {
-			var self = this;
-			self.count = 0
-			self.max = max;
-			self.plus = function () {
-				if (max <= ++self.count) callback();
-			}
-		};
+		var Counter = this._counter;
 		return new Counter(max, callback);
 	},
 	'_watchlist': function (watchlist = 0) {
